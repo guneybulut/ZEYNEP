@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sevgilim — Bir Mesaj</title>
+  <style>
+    :root{--bg1:#ff9a9e;--bg2:#fad0c4}
+    html,body{height:100%;margin:0;font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    body{
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .card{background:rgba(255,255,255,0.08);backdrop-filter:blur(6px);border-radius:20px;padding:40px 48px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.12);max-width:820px}
+    h1{margin:0;font-size:clamp(28px,6vw,56px);color:#fff;letter-spacing:1px;line-height:1.05;opacity:0;transform:translateY(20px);animation:fadeUp .9s forwards .2s}
+    p.lead{color:rgba(255,255,255,0.92);margin:12px 0 0;font-size:18px;opacity:0;transform:translateY(20px);animation:fadeUp .9s forwards .4s}
+
+    .heart{display:inline-block;margin-left:10px;transform:translateY(4px);font-size:0.9em;animation:beat 1s infinite}
+
+    @keyframes fadeUp{to{opacity:1;transform:none}}
+    @keyframes beat{0%{transform:scale(1)}40%{transform:scale(1.18)}70%{transform:scale(0.95)}100%{transform:scale(1)}}
+
+    /* küçük kalpler düşmesi */
+    .float-area{position:fixed;inset:0;pointer-events:none}
+    .heart-drop{position:absolute;width:18px;height:18px;border-radius:50%;background:transparent;transform-origin:center;animation:fall linear forwards}
+    .heart-drop:before,.heart-drop:after{content:"";position:absolute;width:12px;height:18px;border-radius:12px 12px 0 0;background:linear-gradient(180deg,#ff6b9a,#ff9a9e)}
+    .heart-drop:before{left:4px;transform:rotate(-45deg)}
+    .heart-drop:after{right:4px;transform:rotate(45deg)}
+    @keyframes fall{to{transform:translateY(120vh) rotate(720deg);opacity:0}}
+
+    .actions{margin-top:22px;display:flex;gap:12px;justify-content:center}
+    button{background:rgba(255,255,255,0.14);border:0;padding:10px 14px;border-radius:10px;color:white;font-weight:600;cursor:pointer}
+    button:active{transform:translateY(1px)}
+
+    footer{position:fixed;left:12px;bottom:10px;color:rgba(255,255,255,0.6);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 id="message">Sevgilim, <span class="heart">❤️</span><br> seni çok seviyorum</h1>
+    <p class="lead">Bu sayfa açıldığında sana gelen küçük bir sürpriz ✨</p>
+
+    <div class="actions">
+      <button id="copyBtn">Kopyala (mesajı al)</button>
+      <button id="fullBtn">Tam ekrana geçir</button>
+    </div>
+  </div>
+
+  <div class="float-area" id="floatArea"></div>
+  <footer>Hazırlandı — Açıldığında kalpler yağacak 💌</footer>
+
+  <script>
+    // Basit kalp yağı efekti
+    const area = document.getElementById('floatArea');
+    function rand(min,max){return Math.random()*(max-min)+min}
+    function makeHeart(){
+      const el = document.createElement('div');
+      el.className = 'heart-drop';
+      const size = Math.floor(rand(14,36));
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.left = rand(-5,100) + '%';
+      el.style.top = '-10%';
+      el.style.opacity = rand(0.7,1);
+      const dur = rand(4,9);
+      el.style.animationDuration = dur + 's';
+      el.style.transform = 'translateY(0)';
+      area.appendChild(el);
+      setTimeout(()=> el.remove(), (dur+0.5)*1000);
+    }
+    // sayfa açıldığında birden çok kalp oluştur
+    for(let i=0;i<18;i++){
+      setTimeout(makeHeart, i*180);
+    }
+    // zamanla daha yavaş düşen kalpler ekle
+    const interval = setInterval(makeHeart, 800);
+
+    // kopyalama butonu
+    document.getElementById('copyBtn').addEventListener('click', async ()=>{
+      const text = 'Sevgilim, seni çok seviyorum ❤️';
+      try{
+        await navigator.clipboard.writeText(text);
+        alert('Mesaj kopyalandı — yapıştırıp gönderebilirsin!');
+      }catch(e){
+        prompt('Kopyalayamadım. Lütfen aşağıyı seçip kopyala:', text);
+      }
+    });
+
+    // tam ekrana geçir
+    document.getElementById('fullBtn').addEventListener('click', ()=>{
+      if(document.fullscreenElement){document.exitFullscreen();return}
+      document.documentElement.requestFullscreen?.();
+    });
+
+    // mobilde adres çubuğu küçülünce ortalamayı koru
+    window.addEventListener('resize', ()=>{
+      document.body.style.height = window.innerHeight + 'px';
+    });
+  </script>
+</body>
+</html>
